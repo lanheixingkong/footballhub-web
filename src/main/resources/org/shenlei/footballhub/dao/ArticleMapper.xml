@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.shenlei.footballhub.dao.ArticleMapper">
+
+	<resultMap id="BaseResultMap" type="org.shenlei.footballhub.model.Article">
+				<id column="id" property="id" jdbcType="BIGINT" />
+				<result column="title" property="title" jdbcType="VARCHAR"/>
+				<result column="posttime" property="posttime" jdbcType="TIMESTAMP"/>
+				<result column="source_url" property="sourceUrl" jdbcType="VARCHAR"/>
+				<result column="source_name" property="sourceName" jdbcType="VARCHAR"/>
+				<result column="content" property="content" jdbcType="VARCHAR"/>
+				<result column="content_text" property="contentText" jdbcType="VARCHAR"/>
+				<result column="link" property="link" jdbcType="VARCHAR"/>
+				<result column="linkmd5id" property="linkmd5id" jdbcType="VARCHAR"/>
+				<result column="createtime" property="createtime" jdbcType="TIMESTAMP"/>
+				<result column="crawl_site" property="crawlSite" jdbcType="VARCHAR"/>
+				<result column="content_words" property="contentWords" jdbcType="VARCHAR"/>
+	</resultMap>
+	
+	<sql id="Base_Column_List">
+<!-- 				id -->
+<!-- 				, manu_id -->
+<!-- 				, name -->
+<!-- 				, logo -->
+<!-- 				, first_word -->
+<!-- 				, create_by -->
+<!-- 				, create_date -->
+<!-- 				, update_by -->
+<!-- 				, update_date -->
+<!-- 				, del_flag -->
+<!-- 				, remarks -->
+	</sql>
+
+	<select id="selectNewestList" resultMap="BaseResultMap" parameterType="long">
+		select id, title, left(content_text, 50) as content_text, link, posttime, crawl_site
+		from article
+		<where>
+			<if test="id != null and id != 0">
+				id &lt; #{id}
+			</if>
+		</where>
+	</select>
+	
+	<select id="selectByIds" resultMap="BaseResultMap" parameterType="string">
+		select id, title, link, crawl_site from article where id in (${ids})
+	</select>
+
+</mapper>

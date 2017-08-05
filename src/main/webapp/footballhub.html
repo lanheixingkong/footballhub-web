@@ -1,0 +1,203 @@
+<html>
+<head>
+<meta charset="UTF-8">
+<title>足球新闻</title>
+<link rel="stylesheet"
+	href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<style>
+body {
+	font-size: 40px
+}
+
+.nav>li>a:focus, .nav>li>a:hover {
+	background-color: #fff;
+}
+
+.nav>li>a {
+	color: #999
+}
+
+.nav-pills>li.active>a, .nav-pills>li.active>a:focus, .nav-pills>li.active>a:hover
+	{
+	background-color: #fff;
+	color: #337ab7;
+	border-bottom: 2px solid #337ab7
+}
+
+.panel-default>.panel-heading {
+	background-color: #fff;
+	border-color: #fff
+}
+
+.panel-default {
+	border-color: #fff;
+	border-bottom-color: #ddd
+}
+
+.panel-group .panel+.panel {
+	margin-top: 0
+}
+
+.panel-group .panel-heading+.panel-collapse>.list-group, .panel-group .panel-heading+.panel-collapse>.panel-body
+	{
+	border-top: 0px
+}
+
+.panel-heading {
+	padding: 20 25
+}
+
+.nav-justified>li>a {
+	margin-top: 10
+}
+
+.title {
+	font-size: 43px;
+}
+
+.title a {
+	color: #545454;
+}
+
+.summay {
+	font-size: 35px;
+	color: #757575;
+}
+.panel-body{
+	padding:20 25px;
+}
+
+.panel-body a {
+	font-size: 35px;
+	color: #545454;
+}
+
+.panel-body p {
+	font-size: 32px;
+	font-weight: 300;
+	color: #999;
+}
+
+.inter {
+	width: 100px;
+	height: 100px;
+	margin-left: 25px;
+}
+
+.panel-heading span {
+	font-size: 37px;
+	font-weight: 300;
+	color: #999;
+}
+
+.more {
+	text-align: center;
+	font-size: 37px;
+	font-weight: 300;
+	color: #999;
+	margin-top:20px;
+}
+</style>
+</head>
+<body>
+	<!-- 	<header> -->
+	<!-- 		<a><img class="inter" src="inter.jpg" /></a> -->
+	<!-- 	</header> -->
+	<ul class="nav nav-pills nav-justified" id="fgroup">
+		<li role="presentation" class="active"><a tabId='AgroupTab'
+			href="#Agroup">最新资讯</a></li>
+		<li role="presentation"><a tabId='BgroupTab' href="#Bgroup">联赛咨询</a></li>
+	</ul>
+	<div class="tab-content">
+		<div role="tabpanel" class="tab-pane active" id="Agroup">
+			<div class="panel-group" id="accordion">
+				<div v-for="(news, index) in data" class="panel panel-default">
+					<div class="panel-heading title">
+						<a data-toggle="collapse" data-parent="#accordion"
+							v-bind:href="'#collapse' + index">{{news.title}}</a> <span>{{news.timeBetween}}</span>
+					</div>
+					<div v-bind:id="'collapse' + index" class="panel-collapse collapse">
+						<div class="panel-body summay">{{news.contentText}}</div>
+						<div class="panel-body link">
+							<a v-bind:href="news.link">{{news.title}}</a>
+							<p>{{news.crawlSite}}</p>
+						</div>
+						<div class="panel-body link" v-for="sim in news.similarArticle">
+							<a v-bind:href="sim.link">{{sim.title}}</a>
+							<p>{{sim.crawlSite}}</p>
+						</div>
+					</div>
+				</div>
+				<div v-if="more" v-on:click="loadmore" class="more">点击加载更多</div>
+			</div>
+		</div>
+		<div role="tabpanel" class="tab-pane" id="Bgroup">
+			<h3>正在开发中。。。</h3>
+		</div>
+	</div>
+	<script src="https://unpkg.com/vue"></script>
+	<script src="https://cdn.bootcss.com/jquery/2.1.1/jquery.min.js"></script>
+	<script
+		src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<script>
+		var app = new Vue({
+			el : '#accordion',
+			data : {
+				data : [],
+				more : true
+			},
+			methods: {
+				loadmore: function (event) {
+					loadnews();
+			    }
+			}
+		})
+
+		$(function() {
+			$('#fgroup a').click(function(e) {
+				e.preventDefault();
+				var tabId = $(this).attr('tabId');
+				var group = $(this).html();
+				/* alert(tabId+"--"+group); */
+				// 		      loadXzs(group, tabId); 
+				$(this).tab('show');
+			});
+
+			loadnews();
+
+		})
+
+		var lastId;
+		function loadnews() {
+			var url = "article/list";
+			var param = {};
+			if(lastId){
+				param['id'] = lastId;
+			}
+			$.ajax({
+				url : url,
+				dataType : 'json',
+				type : 'get',
+				data: param,
+				success : function(ret) {
+					if (ret.state == 1) {
+						datas = ret.data.data;
+						if(datas.length > 0){
+// 							lid = datas[datas.length - 1].id;
+// 							if(lid != lastId){
+								app.data = app.data.concat(datas);
+								lastId = datas[datas.length - 1].id;
+// 							}
+						}else{
+							alert('all')
+							app.more = false;
+						}
+					} else {
+						alert("加载失败");
+					}
+				}
+			})
+		}
+	</script>
+</body>
+</html>
