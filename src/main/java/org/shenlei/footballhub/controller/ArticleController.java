@@ -18,7 +18,6 @@ import org.shenlei.footballhub.model.Article;
 import org.shenlei.footballhub.model.SimilarArticle;
 import org.shenlei.footballhub.service.ArticleService;
 import org.shenlei.footballhub.service.SimilarArticleService;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -29,7 +28,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 @RestController
-@CrossOrigin(origins = "*")
+// @CrossOrigin(origins = "*")
 @RequestMapping("article")
 public class ArticleController extends BaseController {
 	@Resource
@@ -103,9 +102,13 @@ public class ArticleController extends BaseController {
 			sb.append(a.getId());
 		}
 
+		Map<Long, List<Article>> ret = Maps.newHashMap();
+		if (sb.length() == 0) {
+			return ret;
+		}
+
 		List<SimilarArticle> sims = similarArticleService.selectByMaxIds(sb
 				.toString());
-		Map<Long, List<Article>> ret = Maps.newHashMap();
 
 		for (SimilarArticle sa : sims) {
 			ret.put(sa.getMaxId(),
