@@ -35,8 +35,12 @@
 		select id, title, left(content_text, 50) as content_text, link, posttime, crawl_site
 		from article
 		<where>
+			sim_sign = 0
 			<if test="id != null and id != 0">
-				id &lt; #{id}
+				and id &lt; #{id}
+			</if>
+			<if test="league != null and league != 0">
+				and league = #{league}
 			</if>
 		</where>
 	</select>

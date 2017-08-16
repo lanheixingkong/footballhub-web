@@ -13,22 +13,23 @@ import org.joda.time.Hours;
 import org.joda.time.Minutes;
 import org.joda.time.Months;
 import org.joda.time.Years;
+import org.shenlei.footballhub.constant.Constant;
 import org.shenlei.footballhub.controller.base.BaseController;
 import org.shenlei.footballhub.model.Article;
 import org.shenlei.footballhub.model.SimilarArticle;
 import org.shenlei.footballhub.service.ArticleService;
 import org.shenlei.footballhub.service.SimilarArticleService;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import trueman.common.beans.result.Result;
 import trueman.common.mybatis.page.PageContext;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 @RestController
-// @CrossOrigin(origins = "*")
+@CrossOrigin(origins = "*")
 @RequestMapping("article")
 public class ArticleController extends BaseController {
 	@Resource
@@ -47,8 +48,34 @@ public class ArticleController extends BaseController {
 	@RequestMapping("cate")
 	public Result<PageContext> selectCatetList(HttpServletRequest request,
 			Article param) {
+		if (param.getLeague() == null || param.getLeague() == 0) {
+			param.setLeague(Constant.League.YC);
+		}
 		PageContext page = super.initPageContext(request);
-		page.setData(Lists.newArrayList());
+		page.setSortField("ID");
+		page.setSortOrder("DESC");
+		List<Article> data = articleService.selectNewestList(param);
+		page.setPagination(false);
+
+		Map<Long, List<Article>> similarArticles = getSimilarArticles(data);
+		DateTime now = DateTime.now();
+
+		page.setData(data
+				.stream()
+				.map(article -> {
+					article.setCrawlSite(getCrawlSiteName(article
+							.getCrawlSite()));
+
+					article.setTimeBetween(calPosttime(now, new DateTime(
+							article.getPosttime())));
+
+					if (similarArticles.containsKey(article.getId())) {
+						article.setSimilarArticle(similarArticles.get(article
+								.getId()));
+					}
+
+					return article;
+				}).collect(Collectors.toList()));
 
 		return Result.newSuccResult(page);
 	}

@@ -22,6 +22,7 @@ public class Article implements Serializable {
 	private Date createtime;
 	private String crawlSite;
 	private String contentWords;
+	private Integer league;
 	
 	private String timeBetween;
 	private List<Article> similarArticle;
